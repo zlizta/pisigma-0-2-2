@@ -1,0 +1,172 @@
+:l Fin.pi
+:l Nat.pi
+:l Fin.pi
+:l Bool.pi
+
+U   :  Type;  
+U2 : Type;
+El  :  U -> Type;
+El2  :  U2 -> Type;
+
+U = (l : {enum sigma rec}) * 
+     case l of  { enum   -> Nat
+                | sigma  -> Rec [(a : U) * (El a ->  U)]
+                | rec    -> ^ (Rec [U]) };
+
+U2 = (l : {enum sigma rec}) * 
+     case l of  { enum   -> Nat
+                | sigma  -> Rec [(a : U2) * (El2 a ->  U2)]
+                | rec    -> ^ (Rec [U2]) };
+				
+El =  \ a ->  split a with (a_l,a_r) -> 
+     ! case a_l of
+       {  enum   ->  [Fin a_r]
+       |  sigma  ->  [unfold a_r as a_r' -> 
+                      split a_r' with (b,c) -> 
+                      (x : El b) * (El (c x))]
+       |  rec    ->  [unfold (! a_r) as a_r' -> 
+                     Rec [El a_r']]};
+					 
+El2 =  \ a ->  split a with (a_l,a_r) -> 
+     ! case a_l of
+       {  enum   ->  [Fin a_r]
+       |  sigma  ->  [unfold a_r as a_r' -> 
+                      split a_r' with (b,c) -> 
+                      (x : El2 b) * (El2 (c x))]
+       |  rec    ->  [unfold (! a_r) as a_r' -> 
+                     Rec [El2 a_r']]};					 
+
+{-
+Vec : Nat -> Type -> Type;
+Vec = \ m a -> split m with (lm , m') ->
+                 ! case lm of {
+		     z -> [Unit]
+		   | s -> [a * Vec (unfold m') a] };
+
+vnil : (a : Type) -> Vec zero a;
+vnil = \ a -> 'unit;
+
+vcons : (a : Type) -> (n : Nat) -> a -> Vec n a -> Vec (succ n) a;
+vcons = \ a b x xs -> (x ,xs);
+
+nth : (a : Type) -> (n : Nat) -> (xs : Vec n a) -> Fin n -> a;
+nth = \ a n xs i -> split n with (ln , n') ->
+      	       	    ! case ln of {
+		        z -> case i of {}
+		      | s -> split xs with (x, xs') ->
+		             split i with (li , i') ->
+		               case li of {
+		 	         z -> [x]
+		               | s -> [nth a (unfold n') xs' i']}};
+					   
+Unit : Type;
+Unit = { unit };
+
+Empty : Type;
+Empty = { };
+
+Bool : Type;
+Bool = { true false };
+
+T : Bool -> Type;
+T = \ b -> case b of {
+             true -> Unit
+	   | false -> Empty };
+
+
+Nat : Type;
+Nat = (l : { z s }) * case l of {
+                           z -> Unit
+			 | s -> Rec [Nat] };
+
+zero : Nat;
+zero = ('z,'unit);
+
+succ : Nat -> Nat;
+succ = \ n -> ('s, fold n);
+
+one : Nat;
+one = succ zero;
+
+two : Nat;
+two = succ one;
+
+add : Nat -> Nat -> Nat;
+add = \ m n -> split m with (lm , m') ->
+                 ! case lm of {
+		     z -> [n]
+ 		   | s -> [succ (add (unfold m') n)] };
+
+eqbNat : Nat -> Nat -> Bool;
+eqbNat = \ m n -> split m with (lm , m') ->
+                  split n with (ln , n') ->
+                  ! case lm of {
+		     z -> case ln of {
+		             z -> ['true]
+			   | s -> ['false] }
+	           | s -> case ln of {
+		             z -> ['false]
+			   | s -> [eqbNat (unfold m') (unfold n')] } };
+
+eqNat : Nat -> Nat -> Type;
+eqNat = \ m n -> T (eqbNat m n);
+
+reflNat : (n:Nat) -> eqNat n n;
+reflNat = \ n -> split n with (ln , n') ->
+       	        ! case ln of {
+		     z -> ['unit]
+		   | s -> [reflNat (unfold n')] };
+
+
+Stream : Type -> Type;
+Stream = \ a -> a * Rec [^ (Stream a)];
+
+put : (a : Type) -> a -> Stream a -> Stream a;
+put = \ a x xs -> (x, fold [xs]);
+
+from : Nat -> Stream Nat;
+from = \ n -> (n, fold [from (succ n)]);
+
+tail : (a:Type) -> Stream a -> Stream a;
+tail = \ a xs -> split xs with (x , xs') -> ! (unfold xs');
+
+head : (a:Type) -> Stream a -> a;
+head = \ a xs -> split xs with (x , xs') -> x;
+
+map : (a : Type) -> (b : Type) -> (a -> b) -> Stream a -> Stream b;
+map = \ a b f xs -> split xs with (x , xs') -> (f x, fold [map a b f (! (unfold xs'))]);
+
+eqStream : (a : Type) -> (a -> a -> Type) -> Stream a -> Stream a -> Type;
+eqStream = \ a eq xs ys ->
+  split xs with (x , xs') ->
+  split ys with (y , ys') ->
+    eq x y * Rec [^ (eqStream a eq (! (unfold xs')) (! (unfold ys')))];
+
+reflStream :  (a : Type) -> (eq : a -> a -> Type)
+	   -> ((x : a) -> eq x x)
+	   -> (xs : Stream a) -> eqStream a eq xs xs;
+reflStream = \ a eq refl xs -> split xs with (x , xs') ->
+	       	    	         (refl x, fold [reflStream a eq refl (! (unfold xs'))]);
+
+lemma : (n : Nat) -> eqStream Nat eqNat (from (succ n))
+                                        (map Nat Nat succ (from n));
+lemma = \ n -> ((reflNat (succ n)), fold [lemma (succ n)]);
+
+U   :  Type;  
+El  :  U -> Type;
+
+U = (l : {enum sigma rec}) * 
+     case l of  { enum   -> Nat
+                | sigma  -> Rec [(a : U) * (El a ->  U)]
+                | rec    -> ^ (Rec [U]) };
+
+El =  \ a ->  split a with (a_l,a_r) -> 
+     ! case a_l of
+       {  enum   ->  [Fin a_r]
+       |  sigma  ->  [unfold a_r as a_r' -> 
+                      split a_r' with (b,c) -> 
+                      (x : El b) * (El (c x))]
+       |  rec    ->  [unfold (! a_r) as a_r' -> 
+                     Rec [El a_r']]};
+
+-}

@@ -1,0 +1,34 @@
+:l Nat.pi
+:l Fin.pi
+:l Bool.pi
+
+U   :  Type;  
+El  :  U -> Type;
+
+U = (l : {enum sigma rec}) * 
+     case l of  { enum   -> Nat
+                | sigma  -> Rec [(a : U) * (El a ->  U)]
+                | rec    -> ^ (Rec [U]) };
+
+El =  \ a ->  split a with (a_l,a_r) -> 
+     ! case a_l of
+       {  enum   ->  [Fin a_r]
+       |  sigma  ->  [unfold a_r as a_r' -> 
+                      split a_r' with (b,c) -> 
+                      (x : El b) * (El (c x))]
+       |  rec    ->  [unfold (! a_r) as a_r' -> 
+                     Rec [El a_r']]};
+
+nat : U =  ('sigma, fold (('enum, succ (succ zero)),
+           (\ i -> split i with (i_l,i_r) ->   
+                    !  case i_l of  
+		       {  z  ->  [('enum, succ zero)]
+                       |  s  ->  [('rec, [fold nat])]})));
+
+eq : (a : U) -> El a -> El a -> Bool;
+
+refl : (a : U) → (x : El a) → T (eq a x x);
+
+subst : (a : U) → (x y : El a) → T (eq a x y) 
+      → (P : El a → Type) → P x → P y ;
+
