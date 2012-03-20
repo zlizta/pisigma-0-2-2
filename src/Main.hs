@@ -1,5 +1,5 @@
 
-{- PiSigma
+{- PiSigma, based on
 
 @article{alti2010flops},
   author    = {Thorsten Altenkirch and Nils Anders Danielsson and Andres L\"oh and Nicolas Oury},
@@ -23,6 +23,8 @@ import REPL
 import Parser  
 import Pretty
 import Symbols
+
+main :: IO ()
 main = 
     do   
     start
@@ -30,8 +32,7 @@ main =
     let ini = mapM_ (handleCommand . Load) args
     runREPL (handleCommand Startup >> ini >> repl)
     
-    
-
+start :: IO ()   
 start = 
     do          
     progName <- getProgName
@@ -55,7 +56,7 @@ displayTestStrings =
                    putStrLn ("\nWarning: Could not print the test string.\nThe error was:\n" ++ err ++ "\nCharacters out of the code page might not be displayed properly.")
                    return ())
    where     
-   strings = splitsAt (defaultPageWidth - 20) $ "abc...xyz01234567890=" ++ symbolsList 
+   strings       = splitsAt (defaultPageWidth - 20) $ "abc...xyz01234567890=" ++ symbolsList 
    splitsAt i [] = []
    splitsAt i xs = let (z,ys) = splitAt i xs in z : splitsAt i ys
 

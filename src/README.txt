@@ -10,8 +10,6 @@
 
 * Other minor changes have been made to the pretty printer to enhance the layout (e.g. smart printing \ x y x -> ... instead of \ x -> \ y -> \ z -> ...).
 
-* More for debugging purposes, a PiSigma session starts by displaying information on the system environment and attempts to print a string of symbols. 
-  The user is warned if printing these symbols fails. This will be removed when issues with UTF8 support in Windows consoles is sorted out.
 
 * WINDOWS CONSOLE and UTF8
   There has been issues with using UTF8 text encoding in Windows consoles. One which still exists at the time of writing (January 2012) is reported there:
@@ -25,10 +23,17 @@
   
 ** Release notes for developpers (PiSigma Version 0.2.2)
    -----------------------------------------------------
-  
+
+* Modules have been reorgnized so as to avoid circularity and bootstrapping.
+
 * Module Internal.hs which relied Data.ByteString to support UTF8 strings has been dropped and strings are now all native GHC ones 
   (GHC fully supports strings encoded in UTF8).
 
+* More for debugging purposes, a PiSigma session starts by displaying information on the system environment.
+  A function displayTestStrings is also available which attempts to print a string of symbols and
+  warns the user if printing these symbols fails. You can uncomment its call in Mains.hs/main to perform the test each time you start PiSigma.
+  This will be removed when issues with UTF8 support in Windows consoles are sorted out.
+  
 * The pretty printer is now based on Text.PrettyPrint.ANSI.Leijen which is well documented and supports basic ANSI commands. 
   This has been used to implement basic syntax hightlighting when outputting PiSigma terms. 
   Text.PrettyPrint.MPPPC.OneDim is no longer used.
