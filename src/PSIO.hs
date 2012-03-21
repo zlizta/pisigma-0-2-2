@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, ForeignFunctionInterface #-}
+ï»¿{-# LANGUAGE CPP, ForeignFunctionInterface #-}
 module PSIO where
 
 import qualified System.IO      as IO
@@ -34,8 +34,8 @@ writeFile        = IO.writeFile
 putStrLn         = IO.putStrLn
 defaultPageWidth = 150 :: Int
 defaultRibbon    = 0.5 :: Float
-symbolArrow      = "->" -- "¡ú"
-symbolLambda     = "\\" -- "¦Ë"
+symbolArrow      = "->" -- "Â¡Ãº"
+symbolLambda     = "\\" -- "Â¦Ã‹"
 prettyVar        = text
 #endif
 

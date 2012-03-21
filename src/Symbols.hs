@@ -1,4 +1,4 @@
-module Symbols where
+﻿module Symbols where
 
 symbolsList :: String
 symbolsList = concatMap snd symbolsShortcuts
