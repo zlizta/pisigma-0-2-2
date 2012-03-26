@@ -11,3 +11,7 @@ B = \ y -> case y of
 t : (x : A) -> B x;
 t = \ z -> case z of { a -> 'o };
 
+-- Now evaluate t 'a in pisigma, you get:
+-- 'o : B x
+-- but x should be expanded to 'a
+
