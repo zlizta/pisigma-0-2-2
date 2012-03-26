@@ -1,0 +1,13 @@
+Ba : Type;
+Ba = { o };
+
+A : Type;
+A = { a };
+
+B : A -> Type;
+B = \ y -> case y of
+                { a -> Ba};
+
+t : (x : A) -> B x;
+t = \ z -> case z of { a -> 'o };
+
