@@ -31,7 +31,7 @@ EqBool = \b1 b2 -> T(eqBool b1 b2);
 
 reflBool : (k : Bool) -> EqBool k k;
 reflBool = \ c -> case c of
- { true -> 'unit
+   { true  -> 'unit
    | false -> 'unit}; 
 
 substBool : (P : Bool -> Type) -> 

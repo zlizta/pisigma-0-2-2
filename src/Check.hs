@@ -23,6 +23,7 @@ import Constraints
 import Pretty
 import Error
 
+
 type Set        = Set.Set
 
 cType :: Closure Type
@@ -165,8 +166,8 @@ infer (Q _ _ (a,(x,b)),g) =
 infer (App t u,g) =
     do piab <- inferEval (t,g)
        case piab of
-         (VQ Pi ((a,(x,b)),s)) -> do check (u,g) (a,s)
-                                     subst (x,(b,s)) (u,g)
+         (VQ Pi ((a,(x,b)),s)) -> check (u,g) (a,s) >> subst (x,(b,s)) (u,g)                               
+        
          _ -> expectedButFound (t,g) msg1 piab msg2
                 where
                   msg1 = "pi type" :: String

@@ -11,7 +11,7 @@ import Data.Maybe (fromJust)
 import Data.Map (insert, size)
 import qualified Data.Map as Map
 import Control.Monad.Reader
-import qualified  Debug.Trace as Trace
+
 
 import Syntax
 import Environment
@@ -19,14 +19,18 @@ import Values
 import Eval
 import Equal
 
-debug = False
-trace s c = if debug then Trace.trace s c else c
+
+
+
+
+
 
 -- * Equality
 instance Equal (Closure Term) where
     eq t u = do t' <- eval t
                 u' <- eval u
                 eq t' u'
+                
 instance Equal Value where
     eq (VNeutral t0) (VNeutral t1) = eq t0 t1
     eq (VQ ps0 ((a0,(x0,b0)),s0)) (VQ ps1 ((a1,(x1,b1)),s1)) | ps0 == ps1 = eq (a0,s0) (a1,s1) >> eq (x0,(b0,s0)) (x1,(b1,s1))
@@ -66,9 +70,7 @@ instance Equal Index where
                           (Undefined j0, Undefined j1) -> unless (j0 == j1) $ throwError "Different indices" 
                           (_, Undefined j1) -> error "eq Index Undefined 1"
                           (Undefined j0, _) -> error "eq Index Undefined 2"
-                          _ -> trace ("<eq Index>\nu1 = " ++ show u1 ++ "\nu2 = " ++ show u2
-                                      ++        "\ng1 = " ++ show g1 ++ "\ng2 = " ++ show g2) 
-                                $ letEval i0 (Undefined i0,emptyContext) (letEval i1 (Undefined i0,emptyContext) (eq t0 t1))
+                          _ -> letEval i0 (Undefined i0,emptyContext) (letEval i1 (Undefined i0,emptyContext) (eq t0 t1))
                                 {- ^ Necessary e.g. to evaluate t12 in the following code:
                                     Eq : (a:Type) -> a -> a -> Type;
                                     Eq = \ a x y -> (P : a -> Type) -> P x -> P y;
@@ -88,12 +90,11 @@ instance Equal Index where
 eqBox :: Closure Term -> Closure Term -> Eval ()
 eqBox c c' | c == c' = return ()
 eqBox (Var l x,g) (Var l' y,g') =
-    trace ("<eqBox>\nx = " ++ x ++ "\ny = " ++ y) $
     do 
-       x' <- getContextIndex l  x g
-       y' <- getContextIndex l' y g'
-       trace ("x' = " ++ show x' ++ "\ny' = " ++ show y') $
-        eq x' y' 
+    x' <- getContextIndex l  x g
+    y' <- getContextIndex l' y g'
+    eq x' y'
+        
 eqBox (Let _ p t,g) c =
     do g' <- evalProg (p,g)
        eqBox (t,g') c
@@ -160,7 +161,7 @@ subst (x,(t,g)) u  = do
                      let i = size e
                      putEnvironment $ insert i (u,cUndefined i,PrintInfo x True) e
                      return $ (t,extendContext g x i)
-       
+                     
 eval :: (Closure Term) -> Eval Value
 eval (Let _ g' t, g)            = curry eval t =<< evalProg (g',g)
 eval (Var l x, g)               = getContextIndex l x g >>= evalIndex
@@ -189,6 +190,7 @@ toValue t = error $ "toValue : missing pattern : " ++ show t
              
 evalApp :: Value -> (Closure Term) -> Eval Value
 evalApp (VLambda xt)  u = subst xt u >>= eval
+                         
 evalApp (VNeutral t)  u = ne $ NApp t u
 evalApp _             _ = throwError "function expected"
 

@@ -55,7 +55,7 @@ instance Nf Index Term where
                                      else return (Var Unknown x)
 
 qq :: Vars -> Closure Term -> Eval Term
-qq xs (Var l x  , s) = return $ Var l x
+qq xs (Var l x  , s) = return $ Var l x -- bug1: should expand x if no longer in scope
 qq xs (Let l g t, s) = 
              do s' <- evalProg (g,s)
                 let prog_declared_vars prg = concat [case p of (Decl _ x _) -> [x]

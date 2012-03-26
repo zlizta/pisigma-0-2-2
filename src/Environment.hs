@@ -13,14 +13,13 @@ import Data.Map
 import Location
 import Syntax
 
-type NOTHING = ()
 
-type    Environment      = Map Index (Closure Term, Closure Type, PrintInfo)
-type EnvironmentEntry    = (Closure Term, Closure Type)
-data    PrintInfo        = PrintInfo { name :: Name , expand :: Bool }        deriving Show
+type    Environment         = Map Index (Closure Term, Closure Type, PrintInfo)
+type    EnvironmentEntry    = (Closure Term, Closure Type)
+data    PrintInfo           = PrintInfo { name :: Name , expand :: Bool }        deriving Show
 
-newtype Context          = Context [(Name, Index)]    deriving (Show, Eq, Ord)                         
-type    Closure a        = (a,Context)
+newtype Context             = Context [(Name, Index)]    deriving (Show, Eq, Ord)                         
+type    Closure a           = (a,Context)
 
 class CLOSURE a where
   getContext :: a -> Context

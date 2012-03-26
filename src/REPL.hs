@@ -33,6 +33,7 @@ import Version
 import Symbols
 
 
+
 -- TODO: better command line arg handling; allow non-interactive mode
 
 -- * Instances needed for newtype deriving
@@ -324,7 +325,7 @@ execProg p =
     s <- get
     let (con,env) = replState s
     case run env (checkProg (p,con)) of
-      Right s' -> put (s { replState = s' })
+      Right s' -> put (s { replState = s' })     
       Left e   -> do
                     liftIO $ putStrLn e
                     throwError Error

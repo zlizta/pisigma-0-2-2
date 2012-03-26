@@ -1,4 +1,4 @@
-﻿{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
@@ -14,7 +14,8 @@ module Pretty
     , vcat
     , colon
     , evalPrint
-    , prettyTerm)
+    , prettyTerm
+    , prettyProg)
   where
 
 import Text.PrettyPrint.ANSI.Leijen
@@ -79,6 +80,8 @@ prettyBranchSep               = text "|"
 prettyBranchArrow             = dullred $ prettyArrow
 prettyLabel l                 = dullred $ text l
 prettyEnumLabel               = prettyLabel
+
+
 -- * Print class for various types
 
 class Print a where
@@ -94,8 +97,9 @@ instance Print Value where
     evalPrint a = evalPrint =<< quote [] a
 
 instance Print (Closure Term) where
-    evalPrint a = evalPrint =<< quote [] a
-
+     evalPrint a = evalPrint =<< quote [] a -- bug1 : might print the name of a variable no longer in scope
+                                            -- see also Normalize.hs :      qq xs (Var l x  , s) = return $ Var l x
+    
 instance Print Neutral where
     evalPrint a = evalPrint =<< quote [] a
 
@@ -242,6 +246,8 @@ prettyTerm c (Unfold _ t1 (n, t2))       =
   <+> prettyUnfoldArrow
   <$> prettyTerm 0 t2
 
+prettyProg :: Prog -> Doc
+prettyProg = cat . (map prettyEntry)
 
 prettyEntry :: ProgramEntry -> Doc
 
