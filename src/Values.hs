@@ -4,17 +4,6 @@ module Values where
 import Syntax
 import Environment
 
-data Pattern = PLabel Label deriving Show
-   
-data Constraint  = Constraint Neutral Pattern
-
-data Constraints = Inconsistent | Constraints [Constraint]
-
-emptyConstraints :: Constraints
-emptyConstraints = Constraints []
-
-pat2val :: Pattern -> Value
-pat2val (PLabel l) = VLabel l
 
 {- [alti2010flops]
 Values (v), weak head normal forms (w) and neutral values (n) are defined as follows:
