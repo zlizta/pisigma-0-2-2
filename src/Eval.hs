@@ -26,6 +26,20 @@ newtype Eval a = Eval { unEval :: ReaderT Constraints (StateT Environment (Error
 
 type EvalError   = String   -- Evaluation error message
 
+
+data Pattern = PLabel Label deriving Show
+   
+data Constraint  = Constraint Neutral Pattern
+
+data Constraints = Inconsistent | Constraints [Constraint]
+
+emptyConstraints :: Constraints
+emptyConstraints = Constraints []
+
+pat2val :: Pattern -> Value
+pat2val (PLabel l) = VLabel l
+
+
 run :: Environment -> Eval a -> Either EvalError (a, Environment)
 run e (Eval p) = runIdentity $ runErrorT $ runStateT (runReaderT p emptyConstraints) e
 
